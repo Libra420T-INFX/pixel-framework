@@ -141,7 +141,6 @@ import com.android.wm.shell.startingsurface.StartingSurface;
 import com.google.android.systemui.dreamliner.DockIndicationController;
 import com.google.android.systemui.dreamliner.DockObserver;
 import com.google.android.systemui.reversecharging.ReverseChargingViewController;
-import com.google.android.systemui.statusbar.KeyguardIndicationControllerGoogle;
 
 import java.util.Optional;
 import java.util.concurrent.Executor;
@@ -157,12 +156,9 @@ public class CentralSurfacesGoogle extends CentralSurfacesImpl {
 
     private static final boolean DEBUG = Log.isLoggable("CentralSurfacesGoogle", 3);
     private final BatteryController.BatteryStateChangeCallback mBatteryStateChangeCallback;
-    private final KeyguardIndicationControllerGoogle mKeyguardIndicationController;
-    private final WallpaperNotifier mWallpaperNotifier;
-    private final Optional<ReverseChargingViewController> mReverseChargingViewControllerOptional;
+    private final KeyguardIndicationController mKeyguardIndicationController;
     private final SysuiStatusBarStateController mStatusBarStateController;
-    private final DockObserver mDockObserver;
-    
+
     private long mAnimStartTime;
     private int mReceivingBatteryLevel;
     private boolean mReverseChargingAnimShown;
@@ -217,9 +213,9 @@ public class CentralSurfacesGoogle extends CentralSurfacesImpl {
             NavigationBarController navigationBarController,
             AccessibilityFloatingMenuController accessibilityFloatingMenuController,
             Lazy<AssistManager> assistManagerLazy,
-            FlashlightController flashlightController,            
             // TODO: b/374267505 - Decouple the config change needed for shade window classes from
             //  the one for other windows.
+            FlashlightController flashlightController,
             ConfigurationController configurationController,
             NotificationShadeWindowController notificationShadeWindowController,
             Lazy<NotificationShadeWindowViewController> notificationShadeWindowViewControllerLazy,
@@ -250,7 +246,7 @@ public class CentralSurfacesGoogle extends CentralSurfacesImpl {
             ExtensionController extensionController,
             UserInfoControllerImpl userInfoControllerImpl,
             PhoneStatusBarPolicy phoneStatusBarPolicy,
-            KeyguardIndicationControllerGoogle keyguardIndicationControllerGoogle,
+            KeyguardIndicationController keyguardIndicationController,
             DemoModeController demoModeController,
             Lazy<NotificationShadeDepthController> notificationShadeDepthControllerLazy,
             ShadeTouchableRegionManager shadeTouchableRegionManager,
@@ -269,22 +265,18 @@ public class CentralSurfacesGoogle extends CentralSurfacesImpl {
             DeviceStateManager deviceStateManager,
             WiredChargingRippleController wiredChargingRippleController,
             IDreamManager dreamManager,
-            TunerService tunerService,
             Lazy<CameraLauncher> cameraLauncherLazy,
             LightRevealScrim lightRevealScrim,
             AlternateBouncerInteractor alternateBouncerInteractor,
             UserTracker userTracker,
             Provider<FingerprintManager> fingerprintManager,
+            TunerService tunerService,
             ActivityStarter activityStarter,
             BrightnessMirrorShowingInteractor brightnessMirrorShowingInteractor,
             GlanceableHubContainerController glanceableHubContainerController,
             EmergencyGestureIntentFactory emergencyGestureIntentFactory,
             ViewCaptureAwareWindowManager viewCaptureAwareWindowManager,
-            BurnInProtectionController burnInProtectionController,
-            Optional<ReverseChargingViewController> reverseChargingViewControllerOptional,
-            WallpaperNotifier wallpaperNotifier,
-            DockObserver dockObserver,
-            SysUiState sysUiState
+            BurnInProtectionController burnInProtectionController
     ) {
         super(context, notificationsController, fragmentService, lightBarController, autoHideController, statusBarInitializer,
                 statusBarWindowControllerStore, statusBarWindowStateController, statusBarModeRepository, keyguardUpdateMonitor,
@@ -293,18 +285,18 @@ public class CentralSurfacesGoogle extends CentralSurfacesImpl {
                 javaAdapter, uiBgExecutor, shadeSurface, notificationMediaManager, lockScreenUserManager, remoteInputManager,
                 quickSettingsController, batteryController, colorExtractor, screenLifecycle, wakefulnessLifecycle,
                 powerInteractor, communalInteractor, statusBarStateController, bubblesOptional, noteTaskControllerLazy, deviceProvisionedController,
-                navigationBarController, accessibilityFloatingMenuController,assistManagerLazy, flashlightController, configurationController, notificationShadeWindowController,
+                navigationBarController, accessibilityFloatingMenuController, assistManagerLazy, flashlightController, configurationController, notificationShadeWindowController,
                 notificationShadeWindowViewControllerLazy, notificationStackScrollLayoutController, notificationPresenterLazy, notificationActivityStarterLazy,
                 notifTransitionAnimatorControllerProvider, dozeParameters, scrimController, biometricUnlockControllerLazy, authRippleController,
                 dozeServiceHost, backActionInteractor, powerManager, dozeScrimController, volumeComponent, commandQueue, commandQueueCallbacksLazy,
                 pluginManager, shadeController, windowRootViewVisibilityInteractor, statusBarKeyguardViewManager, viewMediatorCallback, initController, timeTickHandler,
-                pluginDependencyProvider, extensionController, userInfoControllerImpl, phoneStatusBarPolicy, keyguardIndicationControllerGoogle, demoModeController,
+                pluginDependencyProvider, extensionController, userInfoControllerImpl, phoneStatusBarPolicy, keyguardIndicationController, demoModeController,
                 notificationShadeDepthControllerLazy, shadeTouchableRegionManager, brightnessSliderFactory,
                 screenOffAnimationController, wallpaperController, statusBarHideIconsForBouncerManager, lockscreenShadeTransitionController, featureFlags,
                 keyguardUnlockAnimationController, delayableExecutor, messageRouter, wallpaperManager, startingSurfaceOptional, activityTransitionAnimator,
                 deviceStateManager, wiredChargingRippleController, dreamManager, cameraLauncherLazy, lightRevealScrim,
                 alternateBouncerInteractor, userTracker, fingerprintManager, tunerService, activityStarter, brightnessMirrorShowingInteractor,
-                glanceableHubContainerController, emergencyGestureIntentFactory, viewCaptureAwareWindowManager, burnInProtectionController, sysUiState);
+                glanceableHubContainerController, emergencyGestureIntentFactory, viewCaptureAwareWindowManager, burnInProtectionController);
         mContext = context;
         mBatteryStateChangeCallback = new BatteryController.BatteryStateChangeCallback() {
             @Override
@@ -334,25 +326,14 @@ public class CentralSurfacesGoogle extends CentralSurfacesImpl {
                 }
             }
         };
-        mReverseChargingViewControllerOptional = reverseChargingViewControllerOptional;
-        mKeyguardIndicationController = keyguardIndicationControllerGoogle;
+        mKeyguardIndicationController = keyguardIndicationController;
         mStatusBarStateController = statusBarStateController;
-        mWallpaperNotifier = wallpaperNotifier;
-        mDockObserver = dockObserver;
     }
 
     @Override
     public void start() {
         super.start();
-        mWallpaperNotifier.attach();
         mBatteryController.observe(getLifecycle(), mBatteryStateChangeCallback);
-        mDockObserver.setDreamlinerGear((ImageView) getNotificationShadeWindowView().findViewById(R.id.dreamliner_gear));
-        mDockObserver.setPhotoPreview((FrameLayout) getNotificationShadeWindowView().findViewById(R.id.photo_preview));
-        mDockObserver.setIndicationController(new DockIndicationController(mContext, mKeyguardIndicationController, mStatusBarStateController, this));
-        mDockObserver.registerDockAlignInfo();
-        if (mReverseChargingViewControllerOptional.isPresent()) {
-            mReverseChargingViewControllerOptional.get().initialize();
-        }
     }
 
     @Override

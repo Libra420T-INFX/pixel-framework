@@ -3,7 +3,7 @@
     <string name="menu_key_communal" translatable="false">top_level_communal</string>
     <!-- Settings intelligence package name -->
     <string name="config_settingsintelligence_package_name" translatable="false">
-        com.google.android.settings.intelligence
+        com.android.settings.intelligence
     </string>
     <string name="config_settingsintelligence_log_action">com.google.android.settings.intelligence.contextualcards.CARD_INTERACTION_RECEIVER</string>
     <string name="aware_category_display" />
