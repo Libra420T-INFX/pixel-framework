@@ -231,7 +231,6 @@ Clear Calling works on Wi‑Fi calling and most networks, not available for 3G n
     <string name="config_styles_and_wallpaper_picker_class">com.android.customization.picker.CustomizationPickerActivity</string>
     <string name="config_wallpaper_picker_action">android.intent.action.MAIN</string>
     <string name="config_wallpaper_picker_class">com.google.android.apps.wallpaper.picker.CategoryPickerActivity</string>
-    <string name="config_wallpaper_picker_package">com.google.android.apps.wallpaper</string>
     <string name="discover_tips_button">Discover tips</string>
     <string name="debugging_data_title">Debugging data</string>
     <string name="connectivity_helper_call_quality_category">Call quality</string>
